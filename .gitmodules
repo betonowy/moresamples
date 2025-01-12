@@ -1,0 +1,12 @@
+[submodule "thirdparty/Nuklear"]
+	path = thirdparty/Nuklear
+	url = https://github.com/Immediate-Mode-UI/Nuklear.git
+[submodule "thirdparty/SDL"]
+	path = thirdparty/SDL
+	url = https://github.com/libsdl-org/SDL
+[submodule "thirdparty/Catch2"]
+	path = thirdparty/Catch2
+	url = https://github.com/catchorg/Catch2.git
+[submodule "thirdparty/json"]
+	path = thirdparty/json
+	url = https://github.com/nlohmann/json.git

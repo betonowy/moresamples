@@ -1,0 +1,8 @@
+#include "AudioOutput.cpp"
+#include "Envelope.cpp"
+#include "Generator.cpp"
+#include "Math.cpp"
+#include "Splitter.cpp"
+#include "Value.cpp"
+#include "CombFilter.cpp"
+#include "HighPassFilter.cpp"
