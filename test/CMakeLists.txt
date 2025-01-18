@@ -1,5 +1,6 @@
 add_executable(moresamples_tests
     nodes.cpp
+    filters.cpp
 )
 
 target_link_libraries(moresamples_tests moresamples_modules Catch2WithMain)

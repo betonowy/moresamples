@@ -22,6 +22,14 @@ struct AudioOutput : public nodes::INode {
     }
 
     void ui(Ctx &ctx) override {
+        if (ctx.audio.currentParrent() == nullptr) {
+            ctx.audio.setClip({}, this);
+        }
+
+        if (ctx.audio.currentParrent() == this) {
+            ctx.audio.setVolume(volume);
+        }
+
         nk_layout_row_begin(ctx.nk, NK_DYNAMIC, 20, 3);
         {
             nk_layout_row_push(ctx.nk, 0.10f);
@@ -137,9 +145,7 @@ struct AudioOutput : public nodes::INode {
                     }
                 }
             }
-            {
-                sync_size = nk_propertyi(ctx.nk, "window", 16, sync_size, 2048, 16, 16);
-            }
+            { sync_size = nk_propertyi(ctx.nk, "window", 16, sync_size, 2048, 16, 16); }
         }
 
         std::vector<types::Float> window(sync_size);

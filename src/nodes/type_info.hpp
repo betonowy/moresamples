@@ -15,7 +15,8 @@ enum class SerializedType {
     AudioOutput,
     Splitter,
     CombFilter,
-    HighPassFilter,
+    BiQuadFilter,
+    FrequencyResponse,
 };
 
 #define TYPE_INFO_STR_DEFINITION(type)  \
@@ -29,7 +30,8 @@ TYPE_INFO_STR_DEFINITION(Envelope);
 TYPE_INFO_STR_DEFINITION(AudioOutput);
 TYPE_INFO_STR_DEFINITION(Splitter);
 TYPE_INFO_STR_DEFINITION(CombFilter);
-TYPE_INFO_STR_DEFINITION(HighPassFilter);
+TYPE_INFO_STR_DEFINITION(BiQuadFilter);
+TYPE_INFO_STR_DEFINITION(FrequencyResponse);
 
 #undef TYPE_INFO_STR_DEFINITION
 

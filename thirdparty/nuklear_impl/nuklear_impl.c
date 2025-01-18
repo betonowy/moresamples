@@ -203,11 +203,11 @@ NK_API void nk_sdl_render(enum nk_anti_aliasing AA) {
 
             const void *vertices = nk_buffer_memory_const(&vbuf);
 
-            SDL_RenderGeometryRaw(sdl.renderer, (SDL_Texture *)cmd->texture.ptr,            //
-                                  (const float *)((const nk_byte *)vertices + vp),          //
-                                  vs, (const SDL_FColor *)((const nk_byte *)vertices + vc), //
-                                  vs, (const float *)((const nk_byte *)vertices + vt), vs,  //
-                                  (vbuf.needed / vs), (void *)offset, cmd->elem_count, 2);  //
+            SDL_RenderGeometryRaw(sdl.renderer, (SDL_Texture *)cmd->texture.ptr,                               //
+                                  (const float *)((const nk_byte *)vertices + vp),                             //
+                                  vs, (const SDL_FColor *)((const nk_byte *)vertices + vc),                    //
+                                  vs, (const float *)((const nk_byte *)vertices + vt), vs,                     //
+                                  (vbuf.needed / vs), (void *)offset, cmd->elem_count, sizeof(nk_draw_index)); //
 
             offset += cmd->elem_count;
         }

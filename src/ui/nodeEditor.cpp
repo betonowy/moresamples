@@ -85,10 +85,10 @@ void drawCurve(                                     //
                     width, color);
 }
 
-void drawLink(                                                             //
-    struct nk_command_buffer *canvas, struct nk_rect bounds,               //
-    nodes::INode::Attachments &scratch_buf, nodes::Attachment *attachment, //
-    float input_spacing, size_t index, struct nk_color color               //
+void drawLink(                                                              //
+    struct nk_command_buffer *canvas, struct nk_rect bounds,                //
+    nodes::INode::Attachments &scratch_buf, nodes::Attachment *attachment,  //
+    float input_spacing, size_t index, struct nk_color color, bool i_invert //
 ) {
     const auto attached = attachment->attached();
 
@@ -99,20 +99,22 @@ void drawLink(                                                             //
     auto &target_points = scratch_buf;
     target_points = attached->parent()->attachments(std::move(target_points), Role::OUTPUT);
 
+    const auto o_invert = attached->parent()->reversed;
+
     const auto o_space = attached->parent()->space;
     const auto target_spacing = attachmentSpacing(o_space.h, target_points.size());
     const auto target_index = indexOf(target_points, attached);
-    struct nk_vec2 i_target = center(circleRect(index, input_spacing, bounds, Role::INPUT));
+    struct nk_vec2 i_target = center(circleRect(index, input_spacing, bounds, i_invert ? Role::OUTPUT : Role::INPUT));
 
     const auto o_target = center(circleRect(          //
         target_index, target_spacing,                 //
         {o_space.x, o_space.y, o_space.w, o_space.h}, //
-        Role::OUTPUT                                  //
+        o_invert ? Role::INPUT : Role::OUTPUT         //
         )                                             //
     );
 
-    struct nk_vec2 o_ext = {.x = o_target.x + Curve::extension, .y = o_target.y};
-    struct nk_vec2 i_ext = {.x = i_target.x - Curve::extension, .y = i_target.y};
+    struct nk_vec2 o_ext = {.x = o_target.x + (o_invert ? -Curve::extension : Curve::extension), .y = o_target.y};
+    struct nk_vec2 i_ext = {.x = i_target.x - (i_invert ? -Curve::extension : Curve::extension), .y = i_target.y};
 
     drawCurve(canvas, {i_target, i_ext, o_ext, o_target}, link_width, color);
 }
@@ -223,16 +225,19 @@ void ui::nodeEditor(Ctx &ctx) {
                 scratch_buf_a = node->attachments(std::move(scratch_buf_a), role);
                 const auto spacing = attachmentSpacing(bounds.h, scratch_buf_a.size());
 
+                const auto invert = node->reversed;
+                const auto invert_role = role == Role::OUTPUT ? Role::INPUT : Role::OUTPUT;
+
                 for (size_t i = 0; i < scratch_buf_a.size(); ++i) {
                     const auto &attachment = scratch_buf_a[i];
 
-                    struct nk_rect c = circleRect(i, spacing, bounds, role);
+                    struct nk_rect c = circleRect(i, spacing, bounds, invert ? invert_role : role);
                     nk_fill_circle(canvas, c, circleColor(ctx.nk, c));
 
-                    drawAttachmentText(ctx.nk, canvas, bounds, spacing, i, role, attachment->name);
+                    drawAttachmentText(ctx.nk, canvas, bounds, spacing, i, invert ? invert_role : role, attachment->name);
 
                     if (!dragging_active) {
-                        if (const auto curve = optDraggingCurve(ctx.nk, c, role)) {
+                        if (const auto curve = optDraggingCurve(ctx.nk, c, invert ? invert_role : role)) {
                             drawCurve(canvas, *curve, dragged_link_width, ctx.nk->style.window.border_color);
                             dragging_active = true;
                             ctx.attachment_link_begin = attachment;
@@ -252,9 +257,9 @@ void ui::nodeEditor(Ctx &ctx) {
                         continue;
                     }
 
-                    drawLink(                                         //
-                        canvas, bounds, scratch_buf_b, attachment,    //
-                        spacing, i, ctx.nk->style.window.border_color //
+                    drawLink(                                                 //
+                        canvas, bounds, scratch_buf_b, attachment,            //
+                        spacing, i, ctx.nk->style.window.border_color, invert //
                     );
                 }
             };

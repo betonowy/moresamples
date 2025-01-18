@@ -5,4 +5,5 @@
 #include "Splitter.cpp"
 #include "Value.cpp"
 #include "CombFilter.cpp"
-#include "HighPassFilter.cpp"
+#include "BiQuadFilter.cpp"
+#include "FrequencyResponse.cpp"

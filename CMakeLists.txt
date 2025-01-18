@@ -20,6 +20,7 @@ endif()
 
 add_library(moresamples_modules
     src/audio/audio.cpp
+    src/audio/filters.cpp
     src/Ctx.cpp
     src/nodes/impl/unity.cpp
     src/nodes/unity.cpp
@@ -27,7 +28,7 @@ add_library(moresamples_modules
 )
 
 target_include_directories(moresamples_modules PUBLIC src)
-target_link_libraries(moresamples_modules PRIVATE nuklear PUBLIC nlohmann_json)
+target_link_libraries(moresamples_modules PRIVATE nuklear kissfft PUBLIC nlohmann_json)
 
 add_executable(moresamples app/main.cpp)
 

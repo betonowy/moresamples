@@ -77,8 +77,10 @@ std::unique_ptr<INode> nodeFromTypeString(std::string_view str) {
         return splitter();
     case type_info::SerializedType::CombFilter:
         return combFilter();
-    case type_info::SerializedType::HighPassFilter:
-        return highPassFilter();
+    case type_info::SerializedType::BiQuadFilter:
+        return biQuadFilter();
+    case type_info::SerializedType::FrequencyResponse:
+        return frequencyResponse();
     default:
     }
 
@@ -107,7 +109,15 @@ std::vector<std::unique_ptr<INode>> deserialize(const std::string &string) {
                 continue;
             }
 
-            auto node = nodeFromTypeString(entry.value<std::string>("type", ""));
+            const auto typeStr = entry.value<std::string>("type", "");
+
+            auto node = nodeFromTypeString(typeStr);
+
+            if (node == nullptr) {
+                std::cerr << std::format("Unknown node type: {}\n", typeStr);
+                ++node_i;
+                continue;
+            }
 
             const auto data = entry.value<nlohmann::json>("data", {});
 
@@ -115,9 +125,9 @@ std::vector<std::unique_ptr<INode>> deserialize(const std::string &string) {
                 try {
                     node->deserializeData(data);
                 } catch (const std::exception &e) {
-                    std::cerr << std::format(                           //
+                    std::cerr << std::format(                             //
                         "Node: {}:{}, failed deserialize - reason: {}\n", //
-                        node_i, node->name, e.what()                    //
+                        node_i, node->name, e.what()                      //
                     );
                 }
             }
@@ -144,18 +154,27 @@ std::vector<std::unique_ptr<INode>> deserialize(const std::string &string) {
     }
 
     for (const auto &satt : saved_attachments) {
-        if (satt.global_id == 0 || satt.attached_id == 0) {
-            continue;
-        }
+        try {
+            if (satt.global_id == 0 || satt.attached_id == 0) {
+                continue;
+            }
 
-        const auto src = nodes.at(satt.node_id)->attachments().at(satt.att_id);
+            const auto &src_node = nodes.at(satt.node_id);
+            const auto src = src_node->attachments().at(satt.att_id);
 
-        const auto &v = saved_attachments;
-        const auto cond = [satt](const SavedAttachment &o) { return o.global_id == satt.attached_id; };
+            const auto &v = saved_attachments;
+            const auto cond = [satt](const SavedAttachment &o) { return o.global_id == satt.attached_id; };
 
-        if (const auto it = std::find_if(v.begin(), v.end(), cond); it != v.end()) {
-            const auto dst = nodes.at(it->node_id)->attachments().at(it->att_id);
-            src->attach(*dst);
+            if (const auto it = std::find_if(v.begin(), v.end(), cond); it != v.end()) {
+                try {
+                    const auto dst = nodes.at(it->node_id)->attachments().at(it->att_id);
+                    src->attach(*dst);
+                } catch (...) {
+                    std::cerr << std::format("failed to attach: {}:{}\n", src_node->uniqueName(), src->name);
+                }
+            }
+        } catch (...) {
+            std::cerr << std::format("failed to attach: {}:{}\n", satt.global_id, satt.attached_id);
         }
     }
 

@@ -15,7 +15,8 @@ std::string_view stringify(SerializedType value) {
         CASE(AudioOutput);
         CASE(Splitter);
         CASE(CombFilter);
-        CASE(HighPassFilter);
+        CASE(BiQuadFilter);
+        CASE(FrequencyResponse);
     }
 #undef CASE
     return "UNDEFINED";
@@ -35,7 +36,8 @@ SerializedType destringify(std::string_view str) {
     CASE(AudioOutput);
     CASE(Splitter);
     CASE(CombFilter);
-    CASE(HighPassFilter);
+    CASE(BiQuadFilter);
+    CASE(FrequencyResponse);
 
 #undef CASE
     return SerializedType::UNDEFINED;

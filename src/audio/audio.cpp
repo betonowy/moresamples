@@ -9,6 +9,7 @@ void AudioSystem::getSamples(std::span<types::OutFloat> samples) {
 
     if (!m_playing) {
         std::ranges::fill(samples, 0.f);
+        m_volume = m_target_volume;
         return;
     }
 
@@ -18,7 +19,7 @@ void AudioSystem::getSamples(std::span<types::OutFloat> samples) {
         m_volume = m_volume * (1.f - volume_change) + m_target_volume * volume_change;
 
         if (m_clip_cursor < m_clip.size()) {
-            s = std::clamp(m_clip[m_clip_cursor++] * m_volume, types::Float(-1), types::Float(1));
+            s = std::clamp(m_clip[m_clip_cursor++], types::Float(-1), types::Float(1)) * m_volume;
             continue;
         }
 

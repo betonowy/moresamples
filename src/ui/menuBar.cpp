@@ -33,7 +33,7 @@ void ui::menuBar(Ctx &ctx) {
     }
 
     nk_layout_row_push(ctx.nk, 80);
-    if (nk_menu_begin_label(ctx.nk, "Add node", NK_TEXT_LEFT, nk_vec2(120, 200))) {
+    if (nk_menu_begin_label(ctx.nk, "Add node", NK_TEXT_LEFT, nk_vec2(150, 400))) {
         nk_layout_row_dynamic(ctx.nk, 20, 1);
 
         if (nk_menu_item_label(ctx.nk, "Audio output", NK_TEXT_LEFT)) {
@@ -64,8 +64,12 @@ void ui::menuBar(Ctx &ctx) {
             ctx.nodes.push_back(nodes::combFilter());
         }
 
-        if (nk_menu_item_label(ctx.nk, "HighPassFilter", NK_TEXT_LEFT)) {
-            ctx.nodes.push_back(nodes::highPassFilter());
+        if (nk_menu_item_label(ctx.nk, "BiquadFilter", NK_TEXT_LEFT)) {
+            ctx.nodes.push_back(nodes::biQuadFilter());
+        }
+
+        if (nk_menu_item_label(ctx.nk, "FrequencyResponse", NK_TEXT_LEFT)) {
+            ctx.nodes.push_back(nodes::frequencyResponse());
         }
 
         nk_menu_end(ctx.nk);

@@ -2,12 +2,12 @@
 
 #include <Utl.hpp>
 
-#include <vector>
 #include <format>
+#include <vector>
 
 namespace nodes {
-Attachment::Attachment(INode *parent, Role role, std::string name) //
-    : name(std::move(name)), role(role), m_parent(parent)          //
+Attachment::Attachment(INode *parent, Role role, std::string name, bool terminating)     //
+    : name(std::move(name)), role(role), terminating(terminating), m_parent(parent) //
 {
     utl::assertNotNull(parent);
 }
@@ -93,6 +93,11 @@ std::optional<std::vector<INode *>> safeForEachInChain(           //
     for (auto &attachment : top->attachments({}, role)) {
         if (const auto attached = attachment->attached()) {
             stack.push_back(attached->parent());
+
+            if (attached->terminating) {
+                func(attached->parent());
+                return std::nullopt;
+            }
 
             if (const auto opt_stack = safeForEachInChain(stack, role, func)) {
                 return opt_stack;

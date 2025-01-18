@@ -1,5 +1,6 @@
 add_subdirectory(SDL EXCLUDE_FROM_ALL)
 add_subdirectory(json EXCLUDE_FROM_ALL)
+add_subdirectory(kissfft EXCLUDE_FROM_ALL)
 
 if(BUILD_TESTING)
     add_subdirectory(Catch2 EXCLUDE_FROM_ALL)
@@ -20,4 +21,5 @@ target_compile_definitions(nuklear PUBLIC
     -DNK_INCLUDE_VERTEX_BUFFER_OUTPUT
     -DNK_INCLUDE_FONT_BAKING
     -DNK_INCLUDE_DEFAULT_FONT
+    -DNK_UINT_DRAW_INDEX
 )

@@ -13,10 +13,10 @@ SCENARIO("AttachmentPoint") {
             void process(Ctx &, std::span<float>) override {}
             void ui(Ctx &) override {}
 
-            void serializeData(nodes::str::KeyValueList &) override {}
-            void deserializeData(const nodes::str::KeyValueList &) override {}
+            void serializeData(nlohmann::json &) override {}
+            void deserializeData(const nlohmann::json &) override {}
 
-            Attachments attachments(Attachments buffer, AttachmentFilter filter) override { return {}; }
+            Attachments attachments(Attachments , AttachmentFilter ) override { return {}; }
         };
     };
 
@@ -101,8 +101,8 @@ SCENARIO("INode") {
                 return implAttachments(buffer, filter, &input);
             }
 
-            void serializeData(nodes::str::KeyValueList &) override {}
-            void deserializeData(const nodes::str::KeyValueList &) override {}
+            void serializeData(nlohmann::json &) override {}
+            void deserializeData(const nlohmann::json &) override {}
 
             Attachment input = Attachment(this, Attachment::Role::INPUT, "In");
         };
@@ -117,8 +117,8 @@ SCENARIO("INode") {
                 return implAttachments(buffer, filter, &output);
             }
 
-            void serializeData(nodes::str::KeyValueList &) override {}
-            void deserializeData(const nodes::str::KeyValueList &) override {}
+            void serializeData(nlohmann::json &) override {}
+            void deserializeData(const nlohmann::json &) override {}
 
             Attachment output = Attachment(this, Attachment::Role::OUTPUT, "Out");
         };
@@ -164,92 +164,5 @@ SCENARIO("INode") {
         CHECK(all.size() == 1);
         CHECK(all.at(0)->name == "In");
         CHECK(all.at(0)->role == Attachment::Role::INPUT);
-    }
-}
-
-SCENARIO("KeyValueList") {
-    str::KeyValueList kvl;
-
-    GIVEN("one entry with leading and trailing key spaces") {
-        kvl.setRaw("  key   value ");
-
-        THEN("valid key is found") {
-            CHECK(kvl.get("key").value() == "value ");
-            AND_THEN("cannot be parsed as a float") { CHECK(!kvl.get<float>("key").has_value()); }
-            AND_THEN("cannot be parsed as an int") { CHECK(!kvl.get<int>("key").has_value()); }
-        }
-
-        THEN("invalid key is not found") { CHECK(!kvl.get("k").has_value()); }
-    }
-
-    GIVEN("one entry with an int value") {
-        kvl.setRaw("key 30");
-        THEN("valid key is found and value can be parsed") { CHECK(kvl.get<int>("key").value() == 30); }
-    }
-
-    GIVEN("one entry with a double value") {
-        kvl.setRaw("key 30.2");
-        THEN("valid key is found and value can be parsed") { CHECK(kvl.get<double>("key").value() == 30.2); }
-    }
-
-    GIVEN("one entry with no leading nor trailing space") {
-        kvl.setRaw("key value");
-        THEN("valid key is found") { CHECK(kvl.get("key").value() == "value"); }
-        THEN("invalid key is not found") { CHECK(!kvl.get("k").has_value()); }
-    }
-
-    GIVEN("entry with empty value") {
-        kvl.setRaw("key");
-        THEN("key found empty") { CHECK(kvl.get("key").value() == ""); }
-    }
-
-    GIVEN("entry with empty value (spaces)") {
-        kvl.setRaw("key ");
-        THEN("key found empty") { CHECK(kvl.get("key").value() == ""); }
-    }
-
-    GIVEN("invalid entry with just spaces") {
-        kvl.setRaw(" ");
-        THEN("key is not found") { CHECK(!kvl.get("key").has_value()); }
-    }
-
-    GIVEN("invalid entry with empty string") {
-        kvl.setRaw("");
-        THEN("key is not found") { CHECK(!kvl.get("key").has_value()); }
-    }
-
-    GIVEN("two entries with the same key") {
-        kvl.setRaw("key 1");
-        kvl.setRaw("key 2");
-        THEN("first one is found") { CHECK(kvl.get<int>("key").value() == 1); }
-    }
-
-    GIVEN("entries set with template functions") {
-        kvl.set("float", 1.2f);
-        kvl.set("short", 3456);
-        kvl.set("string", "text");
-
-        THEN("values can be read and parsed") {
-            CHECK(kvl.get<float>("float").value() == 1.2f);
-            CHECK(kvl.get<short>("short").value() == 3456);
-            CHECK(kvl.get("string").value() == "text");
-        }
-    }
-
-    THEN("keys with spaces are rejected") {
-        CHECK_THROWS(kvl.set("k k", "sth"));
-        CHECK_THROWS(kvl.set(" k", "sth"));
-        CHECK_THROWS(kvl.set("k ", "sth"));
-    }
-
-    GIVEN("reducible entry") {
-        kvl.setRaw(" D K V");
-
-        THEN("non-reduced entry is read correctly") { CHECK(kvl.get("D").value() == "K V"); }
-
-        AND_WHEN("is reduced") {
-            kvl.reduce();
-            THEN("reduced entry is read correctly") { CHECK(kvl.get("K").value() == "V"); }
-        }
     }
 }

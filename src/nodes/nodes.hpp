@@ -15,14 +15,10 @@ struct Ctx;
 namespace nodes {
 struct INode;
 
-namespace str {
-struct KeyValueList;
-}
-
 struct Attachment {
     enum class Role { INPUT, OUTPUT };
 
-    Attachment(INode *parent, Role, std::string name);
+    Attachment(INode *parent, Role, std::string name, bool terminating = false);
     ~Attachment();
 
     Attachment(const Attachment &) = delete;
@@ -40,6 +36,7 @@ struct Attachment {
 
     const std::string name;
     const Role role;
+    const bool terminating = false;
 
 private:
     INode *m_parent;
@@ -50,13 +47,14 @@ struct INode {
     const std::string name;
     const size_t ui_width;
     const size_t ui_height;
+    const bool reversed;
 
     struct {
         float x = 100, y = 100, w = 0, h = 0;
     } space;
 
-    INode(std::string name, size_t w, size_t h) //
-        : name(std::move(name)), ui_width(w), ui_height(h) {}
+    INode(std::string name, size_t w, size_t h, bool reversed = false) //
+        : name(std::move(name)), ui_width(w), ui_height(h), reversed(reversed) {}
 
     virtual ~INode();
 
@@ -121,5 +119,6 @@ std::unique_ptr<INode> math();
 std::unique_ptr<INode> value();
 std::unique_ptr<INode> splitter();
 std::unique_ptr<INode> combFilter();
-std::unique_ptr<INode> highPassFilter();
+std::unique_ptr<INode> biQuadFilter();
+std::unique_ptr<INode> frequencyResponse();
 } // namespace nodes
